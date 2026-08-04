@@ -3,21 +3,17 @@ import { env } from './config/env';
 import { connectDB } from './config/db';
 
 import { prisma } from "./config/db";
+import authRouter from './routes/auth.route';
 
 const app: Application = express();
 const PORT = env.PORT;
 
 app.use(express.json());
 
+// auth 
+app.use("/api/auth",authRouter)
 
 
-async function testDatabase() {
-  const users = await prisma.user.findMany();
-
-  console.log(users);
-}
-
-testDatabase();
 
 async function startServer() {
   await connectDB();
