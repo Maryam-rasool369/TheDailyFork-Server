@@ -1,18 +1,30 @@
 import express, { Request, Response, Application } from 'express';
-import dotenv from 'dotenv';
+import { env } from './config/env';
+import { connectDB } from './config/db';
 
-dotenv.config();
+import { prisma } from "./config/db";
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
 app.use(express.json());
 
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Node.js + TypeScript Backend is running!');
-});
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+async function testDatabase() {
+  const users = await prisma.user.findMany();
+
+  console.log(users);
+}
+
+testDatabase();
+
+async function startServer() {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer();
