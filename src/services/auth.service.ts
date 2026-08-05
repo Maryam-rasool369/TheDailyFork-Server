@@ -10,7 +10,7 @@ export const signup = async (data: any) => {
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser) {
-        throw new Error("Email already exists");
+        throw new Error("Email already exists.");
     }
 
     const hashedPassword = await bycrpt.hash(password, 10)
@@ -40,14 +40,14 @@ export const login = async (data: any) => {
 
     if (!user) {
 
-        throw new Error("User not found");
+        throw new Error("User not found.");
 
     }
 
     const isPasswordValid = await bycrpt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        throw new Error("Invalid Password")
+        throw new Error("Invalid Password.")
     }
 
     const token = jwt.sign(
