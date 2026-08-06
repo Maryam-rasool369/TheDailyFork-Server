@@ -14,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Rate limit auth routes — prevent brute force/spam
+// Rate limit auth routes prevent brute force/spam
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 40, // Number of requests per IP per window ---------- make it 10 againnnnnnnnnn :)

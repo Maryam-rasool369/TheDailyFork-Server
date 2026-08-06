@@ -174,7 +174,7 @@ export const login = async (data: LoginInput) => {
     const { email, password } = data;
     const user = await prisma.user.findUnique({ where: { email } });
 
-    // Same error for both cases — don't reveal whether the email exists
+    // Same error for both cases don't reveal to the user whether the email exists
     if (!user) {
         throw new UnauthorizedError("Invalid email or password");
     }
