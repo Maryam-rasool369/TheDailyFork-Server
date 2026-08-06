@@ -17,7 +17,7 @@ app.use(express.json());
 // Rate limit auth routes — prevent brute force/spam
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // 10 requests per IP per window
+    max: 40, // Number of requests per IP per window ---------- make it 10 againnnnnnnnnn :)
     message: {
         success: false,
         message: "Too many requests, please try again later",
@@ -26,7 +26,6 @@ const authLimiter = rateLimit({
 
 app.use("/api/auth", authLimiter, authRouter);
 
-// Global error handler — MUST be registered last, after all routes
 app.use(errorHandler);
 
 export default app;
