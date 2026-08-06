@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { login, signup } from "../services/auth.service";
+import { forgetPassword, login, resetPassword, signup } from "../services/auth.service";
 
 
 export const signupController = async (req: Request, res: Response, next: NextFunction) => {
@@ -71,3 +71,80 @@ export const loginController = async (req: Request, res: Response, next: NextFun
 
     }
 }
+
+// export const forgotPasswordController = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const { email } = req.body;
+//         if (!email) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Email is required.",
+//             });
+//         }
+
+//         await forgetPassword({email})
+
+//     } catch (error) {
+
+//     }
+// }
+
+export const forgetPasswordController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+
+        await forgetPassword(email);
+
+        // Same response whether or not the email exists
+        return res.status(200).json({
+            success: true,
+            message: "If that email exists, a reset link has been sent",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const resetPasswordController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Token and new password are required",
+            });
+        }
+
+        await resetPassword(token, newPassword);
+
+        return res.status(200).json({
+            success: true,
+            message: "Password has been reset successfully",
+        });
+    } catch (error: any) {
+        if (error.message === "Invalid or expired token") {
+            return res.status(400).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        next(error);
+    }
+};

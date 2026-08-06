@@ -29,6 +29,20 @@ model User {
   profileImage String?
   role         Role     @default(USER)
   isVerified   Boolean  @default(false)
+
+  resetTokens PasswordResetToken[]
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
