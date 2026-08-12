@@ -52,3 +52,13 @@ export type Role = Prisma.RoleModel
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model Blog
+ * 
+ */
+export type Blog = Prisma.BlogModel
