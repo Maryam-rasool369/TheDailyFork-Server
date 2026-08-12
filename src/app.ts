@@ -1,9 +1,9 @@
 import express, { Application } from 'express';
 import cors from "cors";
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import authRouter from './routes/auth.route';
 import { errorHandler } from './middlewares/errorHandler';
+import { authLimiter } from './middlewares/rateLimiter';
 
 const app: Application = express();
 
@@ -13,16 +13,6 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json());
-
-// Rate limit auth routes prevent brute force/spam
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 40, // Number of requests per IP per window ---------- make it 10 againnnnnnnnnn :)
-    message: {
-        success: false,
-        message: "Too many requests, please try again later",
-    },
-});
 
 app.use("/api/auth", authLimiter, authRouter);
 

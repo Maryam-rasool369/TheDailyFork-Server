@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+build/
 
 # Environment
 .env
@@ -30,6 +31,6 @@ temp/
 
 # TypeScript
 *.tsbuildinfo
-/src/generated/prisma
 
-/src/generated/prisma
+/src/generated/
+
