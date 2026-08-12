@@ -9,7 +9,7 @@ import { createBlogController, updateBlogController, deleteBlogController, getMy
 
 const router = Router();
 
-// Public
+// Public all approved blogs
 router.get("/", getApprovedBlogsController);
 
 // Logged-in user

@@ -11,6 +11,7 @@ import {
 } from "../services/blog.service";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 import { BadRequestError } from "../utils/errors";
+import { UpdateBlogInput } from "../validations/blog.validation";
 
 export const createBlogController = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,7 +20,10 @@ export const createBlogController = async (req: Request, res: Response, next: Ne
         }
 
         const imageUrl = await uploadToCloudinary(req.file.buffer);
-        const blog = await createBlog(req.body, req.currentUser!.id, imageUrl);
+        // const blog = await createBlog(req.body, req.currentUser!.id, imageUrl);
+        const { title, shortDescription, content, categoryId } = req.body;
+        const { id } = req.currentUser!
+        const blog = await createBlog({ title, shortDescription, content, categoryId }, id, imageUrl);
 
         return res.status(201).json({
             success: true,
@@ -40,13 +44,37 @@ export const updateBlogController = async (req: Request, res: Response, next: Ne
             imageUrl = await uploadToCloudinary(req.file.buffer);
         }
 
-        const blog = await updateBlog(blogId, req.body, imageUrl);
+        const { title, shortDescription, content, categoryId } = req.body;
+
+        const updateData: UpdateBlogInput = {};
+
+        if (title !== undefined) {
+            updateData.title = title;
+        }
+
+        if (shortDescription !== undefined) {
+            updateData.shortDescription = shortDescription;
+        }
+
+        if (content !== undefined) {
+            updateData.content = content;
+        }
+
+        if (categoryId !== undefined) {
+            updateData.categoryId = Number(categoryId);
+        }
+
+        const blog = await updateBlog(blogId, updateData, imageUrl);
+
+        // const { title, shortDescription, content, categoryId } = req.body;
+        // const blog = await updateBlog(blogId, req.body, imageUrl);
 
         return res.status(200).json({
             success: true,
             message: "Blog updated successfully",
             data: blog,
         });
+
     } catch (error) {
         next(error);
     }
@@ -68,7 +96,8 @@ export const deleteBlogController = async (req: Request, res: Response, next: Ne
 
 export const getMyBlogsController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const blogs = await getMyBlogs(req.currentUser!.id);
+        const { currentUser } = req.body
+        const blogs = await getMyBlogs(currentUser!.id);
 
         return res.status(200).json({
             success: true,
