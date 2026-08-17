@@ -1,12 +1,10 @@
 import { UnauthorizedError, BadRequestError } from "../utils/errors";
 import { SignupInput, LoginInput } from "../validations/auth.validation";
 import { User } from "../generated/client";
-import bycrpt from "bcrypt";
 import { prisma } from "../config/db";
 import { env } from "../config/env";
 import { sendEmail } from "../services/email.service";
 import { passwordResetTemplate } from "../templates/passwordReset.template";
-import { SALT_ROUNDS } from "../comman/constants";
 import { generateAuthToken, generateResetToken, ResetTokenPayload, verifyToken } from "../utils/jwtHandler";
 import { comparePassword, hashPassword } from "../utils/password";
 
