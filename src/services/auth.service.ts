@@ -24,10 +24,6 @@ export const signup = async (data: SignupInput) => {
         },
     });
 
-    // const userRole = await prisma.role.findUnique({ where: { name: "USER" } });
-    // if (!userRole) {
-    //     throw new BadRequestError("Default role not configured");
-    // }
 
     const user = await prisma.user.create({
         data: {
