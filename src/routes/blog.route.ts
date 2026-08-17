@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate";
 import { createBlogSchema, updateBlogSchema } from "../validations/blog.validation";
-import { requireAuth } from "../middlewares/auth/requireAuth.middleware";
+import { requireAuth } from "../middlewares/global/authValidation.middleware";
 import { requireAdmin } from "../middlewares/auth/requireAdmin.middleware";
 import { requireBlogOwnership } from "../middlewares/blog/requireBlogOwnership.middleware";
-import { upload } from "../middlewares/upload.middleware";
+import { uploadImage } from "../middlewares/global/uploadImage.middleware";
 import { createBlogController, updateBlogController, deleteBlogController, getMyBlogsController, getApprovedBlogsController, getAllBlogsForAdminController, approveBlogController, rejectBlogController, } from "../controllers/blog.controller";
+import { requireFile } from "../middlewares/global/requireFile.middleware";
 
 const router = Router();
 
@@ -16,7 +17,8 @@ router.get("/", getApprovedBlogsController);
 router.post(
     "/",
     requireAuth,
-    upload.single("image"),
+    uploadImage.single("image"),
+    requireFile,
     validate(createBlogSchema),
     createBlogController
 );
@@ -27,7 +29,7 @@ router.put(
     "/:id",
     requireAuth,
     requireBlogOwnership,
-    upload.single("image"),
+    uploadImage.single("image"),
     validate(updateBlogSchema),
     updateBlogController
 );

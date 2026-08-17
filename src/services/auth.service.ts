@@ -7,25 +7,27 @@ import { sendEmail } from "../services/email.service";
 import { passwordResetTemplate } from "../templates/passwordReset.template";
 import { generateAuthToken, generateResetToken, ResetTokenPayload, verifyToken } from "../utils/jwtHandler";
 import { comparePassword, hashPassword } from "../utils/password";
+import { RoleScalarFieldEnum } from "../generated/internal/prismaNamespace";
+import { Role } from "../comman/enum";
 
 export const signup = async (data: SignupInput) => {
 
     const hashedPassword = await hashPassword(data.password);
 
-    // const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
-    //     where: {
-    //         name: "USER",
-    //     },
-    //     update: {},
-    //     create: {
-    //         name: "USER",
-    //     },
-    // });
+    const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
+        where: {
+            name: Role.USER
+        },
+        update: {},
+        create: {
+            name: Role.USER,
+        },
+    });
 
-    const userRole = await prisma.role.findUnique({ where: { name: "USER" } });
-    if (!userRole) {
-        throw new BadRequestError("Default role not configured");
-    }
+    // const userRole = await prisma.role.findUnique({ where: { name: "USER" } });
+    // if (!userRole) {
+    //     throw new BadRequestError("Default role not configured");
+    // }
 
     const user = await prisma.user.create({
         data: {

@@ -8,22 +8,37 @@ import {
     getAllBlogsForAdmin,
     approveBlog,
     rejectBlog,
-} from "../services/blog.service";
+    getBlogById,
+} from "../services/blog/blog.service";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 import { BadRequestError } from "../utils/errors";
-import { UpdateBlogInput } from "../validations/blog.validation";
+import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
+import { getCategoryById } from "../services/blog/category.service";
+
+export const getApprovedBlogsController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const blogs = await getApprovedBlogs();
+
+        return res.status(200).json({
+            success: true,
+            data: blogs,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 export const createBlogController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.file) {
-            throw new BadRequestError("Blog image is required");
-        }
 
-        const imageUrl = await uploadToCloudinary(req.file.buffer);
-        // const blog = await createBlog(req.body, req.currentUser!.id, imageUrl);
-        const { title, shortDescription, content, categoryId } = req.body;
+        const imageUrl = await uploadToCloudinary(req.file!.buffer);
+        const data: CreateBlogInput = req.body; //same as  const { title, shortDescription, content, categoryId } = req.body;
+
         const { id } = req.currentUser!
-        const blog = await createBlog({ title, shortDescription, content, categoryId }, id, imageUrl);
+
+        await getCategoryById(data.categoryId);
+
+        const blog = await createBlog(data, id, imageUrl);
 
         return res.status(201).json({
             success: true,
@@ -35,46 +50,30 @@ export const createBlogController = async (req: Request, res: Response, next: Ne
     }
 };
 
-export const updateBlogController = async (req: Request, res: Response, next: NextFunction) => {
+export const updateBlogController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const blogId = Number(req.params.id);
+
         let imageUrl: string | undefined;
 
         if (req.file) {
             imageUrl = await uploadToCloudinary(req.file.buffer);
         }
 
-        const { title, shortDescription, content, categoryId } = req.body;
+        const data: UpdateBlogInput = req.body; //same as const { title, shortDescription, content, categoryId, }: UpdateBlogInput = req.body;
 
-        const updateData: UpdateBlogInput = {};
 
-        if (title !== undefined) {
-            updateData.title = title;
-        }
-
-        if (shortDescription !== undefined) {
-            updateData.shortDescription = shortDescription;
-        }
-
-        if (content !== undefined) {
-            updateData.content = content;
-        }
-
-        if (categoryId !== undefined) {
-            updateData.categoryId = Number(categoryId);
-        }
-
-        const blog = await updateBlog(blogId, updateData, imageUrl);
-
-        // const { title, shortDescription, content, categoryId } = req.body;
-        // const blog = await updateBlog(blogId, req.body, imageUrl);
+        const blog = await updateBlog(blogId, data, imageUrl);
 
         return res.status(200).json({
             success: true,
             message: "Blog updated successfully",
             data: blog,
         });
-
     } catch (error) {
         next(error);
     }
@@ -108,18 +107,6 @@ export const getMyBlogsController = async (req: Request, res: Response, next: Ne
     }
 };
 
-export const getApprovedBlogsController = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const blogs = await getApprovedBlogs();
-
-        return res.status(200).json({
-            success: true,
-            data: blogs,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
 
 export const getAllBlogsForAdminController = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -137,6 +124,8 @@ export const getAllBlogsForAdminController = async (req: Request, res: Response,
 export const approveBlogController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const blogId = Number(req.params.id);
+        await getBlogById(blogId);
+
         const blog = await approveBlog(blogId);
 
         return res.status(200).json({
@@ -152,6 +141,8 @@ export const approveBlogController = async (req: Request, res: Response, next: N
 export const rejectBlogController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const blogId = Number(req.params.id);
+        await getBlogById(blogId);
+
         const blog = await rejectBlog(blogId);
 
         return res.status(200).json({
