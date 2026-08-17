@@ -28,6 +28,7 @@ import { PrismaClient } from "../src/generated/client";
 const prisma = new PrismaClient();
 
 async function main() {
+    // Seed roles
     await prisma.role.upsert({
         where: { name: "USER" },
         update: {},
@@ -40,12 +41,31 @@ async function main() {
         create: { name: "ADMIN" },
     });
 
-    console.log("Roles seeded");
+    // Seed categories
+    const categories = [
+        "Fashion",
+        "Food",
+        "Health",
+        "History",
+        "Politics",
+        "Tech",
+        "Travel",
+    ];
+
+    for (const name of categories) {
+        await prisma.category.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+        });
+    }
+
+    console.log("Roles and categories seeded successfully");
 }
 
 main()
-    .catch((e) => {
-        console.error(e);
+    .catch((error) => {
+        console.error(error);
         process.exit(1);
     })
     .finally(async () => {

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import authRouter from './routes/auth.route';
 import { errorHandler } from './middlewares/errorHandler';
 import { authLimiter } from './middlewares/rateLimiter';
+import blogRouter from "./routes/blog.route";
 
 const app: Application = express();
 
@@ -15,6 +16,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/api/auth", authLimiter, authRouter);
+app.use("/api/blogs", blogRouter);
 
 app.use(errorHandler);
 
