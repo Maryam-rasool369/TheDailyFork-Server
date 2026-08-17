@@ -14,15 +14,20 @@ export const signup = async (data: SignupInput) => {
 
     const hashedPassword = await hashPassword(data.password);
 
-    const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
-        where: {
-            name: "USER",
-        },
-        update: {},
-        create: {
-            name: "USER",
-        },
-    });
+    // const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
+    //     where: {
+    //         name: "USER",
+    //     },
+    //     update: {},
+    //     create: {
+    //         name: "USER",
+    //     },
+    // });
+
+    const userRole = await prisma.role.findUnique({ where: { name: "USER" } });
+    if (!userRole) {
+        throw new BadRequestError("Default role not configured");
+    }
 
     const user = await prisma.user.create({
         data: {
@@ -63,7 +68,7 @@ export const login = async (data: LoginInput, user: User) => {
     };
 };
 
-export const forgetPassword = async (email: any) => {
+export const forgetPassword = async (email: string) => {
     const user = await prisma.user.findUnique({ // move this to repository folder later 
         where: { email },
     });
