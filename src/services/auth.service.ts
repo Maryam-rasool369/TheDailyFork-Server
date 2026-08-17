@@ -6,30 +6,29 @@ import { prisma } from "../config/db";
 import { env } from "../config/env";
 import { sendEmail } from "../services/email.service";
 import { passwordResetTemplate } from "../templates/passwordReset.template";
-import { SALT_ROUNDS } from "../constants/constants";
-import {
-    generateAuthToken,
-    generateResetToken,
-    ResetTokenPayload,
-    verifyToken,
-} from "../utils/jwtHandler";
+import { SALT_ROUNDS } from "../comman/constants";
+import { generateAuthToken, generateResetToken, ResetTokenPayload, verifyToken } from "../utils/jwtHandler";
+import { comparePassword, hashPassword } from "../utils/password";
 
 export const signup = async (data: SignupInput) => {
-    const { firstName, lastName, email, password } = data;
 
-    const hashedPassword = await bycrpt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await hashPassword(data.password);
 
-    const userRole = await prisma.role.findUnique({ where: { name: "USER" } }); // put this in a separate file
-
-    if (!userRole) {
-        throw new BadRequestError("Default role not configured");
-    }
+    const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
+        where: {
+            name: "USER",
+        },
+        update: {},
+        create: {
+            name: "USER",
+        },
+    });
 
     const user = await prisma.user.create({
         data: {
-            firstName,
-            lastName,
-            email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
             password: hashedPassword,
             roleId: userRole.id,
         },
@@ -46,7 +45,7 @@ export const signup = async (data: SignupInput) => {
 export const login = async (data: LoginInput, user: User) => {
     const { password } = data;
 
-    const isPasswordValid = await bycrpt.compare(password, user.password); 
+    const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
         throw new UnauthorizedError("Invalid email or password");
     }
@@ -65,7 +64,7 @@ export const login = async (data: LoginInput, user: User) => {
 };
 
 export const forgetPassword = async (email: any) => {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({ // move this to repository folder later 
         where: { email },
     });
     if (!user) {
@@ -116,11 +115,12 @@ export const resetPassword = async (token: string, newPassword: string) => {
 
     // If the password already changed since this token was issued,
     // the embedded hash won't match — token is stale/already used
+
     if (user.password !== payload.pwdHash) {
         throw new BadRequestError("Invalid or expired token");
     }
 
-    const hashedPassword = await bycrpt.hash(newPassword, SALT_ROUNDS);
+    const hashedPassword = await hashPassword(newPassword);
 
     await prisma.user.update({
         where: { id: user.id },

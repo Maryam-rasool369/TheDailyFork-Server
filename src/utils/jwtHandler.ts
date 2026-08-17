@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
+import { AUTH_TOKEN_EXPIRY, RESET_TOKEN_EXPIRY } from "../comman/constants";
 
 // For login
 export interface AuthTokenPayload {
@@ -13,8 +14,7 @@ export interface ResetTokenPayload {
     pwdHash: string;
 }
 
-const AUTH_TOKEN_EXPIRY = "7d";
-const RESET_TOKEN_EXPIRY = "15m"; //For reset password token
+
 
 
 export const generateAuthToken = (
