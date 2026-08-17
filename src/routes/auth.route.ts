@@ -2,8 +2,8 @@ import { Router } from "express";
 import { validate } from "../middlewares/validate";
 import { signupSchema, loginSchema, forgetPasswordSchema, resetPasswordSchema, } from "../validations/auth.validation";
 import { signupController, loginController, forgetPasswordController, resetPasswordController, } from "../controllers/auth.controller";
-import { rejectIfUserExistsByEmail } from "../middlewares/auth/signup.middleware";
-import { requireUserExistsByEmail } from "../middlewares/auth/login.middleware";
+import { rejectIfUserExistsByEmail } from "../middlewares/auth/rejectIfUserExistsByEmail.middleware";
+import { requireUserExistsByEmail } from "../middlewares/auth/requireUserExistsByEmail.middleware";
 
 const router = Router();
 
