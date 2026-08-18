@@ -8,3 +8,7 @@ export enum BlogStatus {
     APPROVED = "APPROVED",
     REJECTED = "REJECTED",
 }
+export enum Gender {
+  MALE,
+  FEMALE
+}

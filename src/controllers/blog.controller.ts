@@ -10,7 +10,7 @@ import {
     rejectBlog,
     getBlogById,
 } from "../services/blog.service";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary";
+import { uploadToCloudinary } from "../services/cloudinary.service";
 import { BadRequestError } from "../utils/errors";
 import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
 import { getCategoryById } from "../services/category.service";

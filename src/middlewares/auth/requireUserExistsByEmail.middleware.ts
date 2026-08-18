@@ -21,7 +21,7 @@ export const requireUserExistsByEmail = async (
             throw new UnauthorizedError("Invalid credentials");
         }
 
-        req.existingUser = user;
+        req.body.existingUser = user;
         next();
     } catch (err) {
         next(err);

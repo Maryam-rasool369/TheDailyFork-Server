@@ -1,13 +1,14 @@
 import { BadRequestError } from "../utils/errors";
 import { SignupInput } from "../validations/auth.validation";
-import { User } from "../generated/client";
 import { env } from "../config/env";
 import { sendEmail } from "../services/email.service";
-import { passwordResetTemplate } from "../templates/passwordReset.template";
-import { generateAuthToken, generateResetToken, ResetTokenPayload, verifyToken } from "../utils/jwtHandler";
+import { passwordResetTemplate } from "../templates/auth.template";
+import { generateAuthToken, generateResetToken, verifyToken } from "../utils/jwtHandler";
 import { hashPassword, validatePassword } from "../utils/password";
 import { createUser, findUserById, updateUserPassword } from "../repositories/user.repository";
-import { getUserRole } from "../repositories/role.repository";
+import { getOrCreateRole } from "../repositories/role.repository";
+import { ResetTokenPayload, User } from "../comman/types";
+import { Role } from "../comman/enum";
 
 
 export const signup = async (
@@ -16,7 +17,7 @@ export const signup = async (
     const { firstName, lastName, email, password } = data;
     const hashedPassword = await hashPassword(password);
 
-    const role = await getUserRole();
+    const role = await getOrCreateRole(Role.USER);
 
     const user = await createUser({
         firstName,

@@ -1,21 +1,7 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { AUTH_TOKEN_EXPIRY, RESET_TOKEN_EXPIRY } from "../comman/constants";
-
-// For login
-export interface AuthTokenPayload {
-    id: number;
-    email: string;
-}
-// For reset password token
-export interface ResetTokenPayload {
-    id: number;
-    purpose: "reset-password";
-    pwdHash: string;
-}
-
-
-
+import { AuthTokenPayload, ResetTokenPayload } from "../comman/types";
 
 export const generateAuthToken = (
     payload: AuthTokenPayload,

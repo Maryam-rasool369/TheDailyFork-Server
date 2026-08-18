@@ -1,10 +1,10 @@
 import { Role } from "../comman/enum";
 import { prisma } from "../config/db";
 
-export const getUserRole = async () => {
+export const getOrCreateRole = async (role:Role) => {
     return prisma.role.upsert({
-        where: { name: Role.USER },
+        where: { name: role },
         update: {},
-        create: { name: Role.USER },
+        create: { name: role },
     });
 };

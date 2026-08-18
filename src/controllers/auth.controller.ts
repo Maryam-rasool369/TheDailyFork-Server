@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { forgetPassword, login, resetPassword, signup } from "../services/auth.service";
 import { SignupInput } from "../validations/auth.validation";
+import { User } from "../comman/types";
 
 export const signupController = async (
     req: Request,
@@ -31,10 +32,9 @@ export const loginController = async (
     next: NextFunction
 ) => {
     try {
-        const { password } = req.body;
-        const user = req.existingUser!;
+        const { password, existingUser: user } = req.body;
 
-        const result = await login(password, user);
+        const result = await login(password, user as User); //should we make 
 
         return res.status(200).json({
             success: true,
@@ -52,9 +52,9 @@ export const forgetPasswordController = async (
     next: NextFunction
 ) => {
     try {
-        const user = req.existingUser!;
+        const user = req.body.existingUser!;
 
-        await forgetPassword(user);
+        await forgetPassword(user as User);
 
         return res.status(200).json({
             success: true,
