@@ -9,11 +9,11 @@ import {
     approveBlog,
     rejectBlog,
     getBlogById,
-} from "../services/blog/blog.service";
+} from "../services/blog.service";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 import { BadRequestError } from "../utils/errors";
 import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
-import { getCategoryById } from "../services/blog/category.service";
+import { getCategoryById } from "../services/category.service";
 
 export const getApprovedBlogsController = async (req: Request, res: Response, next: NextFunction) => {
     try {

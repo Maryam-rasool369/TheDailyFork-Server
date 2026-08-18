@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "../../config/db";
 import { ConflictError } from "../../utils/errors";
+import { findUserByEmail } from "../../repositories/user.repository";
 
 // Use on signup: fails if the email is already registered.
 export const rejectIfUserExistsByEmail = async (
@@ -11,7 +11,7 @@ export const rejectIfUserExistsByEmail = async (
     try {
         const { email } = req.body;
 
-        const existingUser = await prisma.user.findUnique({ where: { email } });
+        const existingUser = await findUserByEmail(email);
 
         if (existingUser) {
             throw new ConflictError("Email already exists");

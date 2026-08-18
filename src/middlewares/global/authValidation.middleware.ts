@@ -3,7 +3,7 @@ import { verifyToken, AuthTokenPayload } from "../../utils/jwtHandler";
 import { prisma } from "../../config/db";
 import { UnauthorizedError } from "../../utils/errors";
 
-export const requireAuth = async (
+export const authValidation = async (
     req: Request,
     res: Response,
     next: NextFunction

@@ -7,9 +7,9 @@ import { requireUserExistsByEmail } from "../middlewares/auth/requireUserExistsB
 
 const router = Router();
 
-router.post("/signup", validate(signupSchema),rejectIfUserExistsByEmail, signupController);
-router.post("/login", validate(loginSchema),requireUserExistsByEmail, loginController);
-router.post("/forget-password", validate(forgetPasswordSchema), forgetPasswordController);
+router.post("/signup", validate(signupSchema), rejectIfUserExistsByEmail, signupController);
+router.post("/login", validate(loginSchema), requireUserExistsByEmail, loginController);
+router.post("/forget-password", validate(forgetPasswordSchema), requireUserExistsByEmail, forgetPasswordController);
 router.post("/reset-password", validate(resetPasswordSchema), resetPasswordController);
 
 export default router;
