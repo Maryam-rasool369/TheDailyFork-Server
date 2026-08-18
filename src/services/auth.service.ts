@@ -1,38 +1,30 @@
-import { UnauthorizedError, BadRequestError } from "../utils/errors";
-import { SignupInput, LoginInput } from "../validations/auth.validation";
-import { User } from "../generated/client";
-import { prisma } from "../config/db";
+import { BadRequestError } from "../utils/errors";
+import { SignupInput } from "../validations/auth.validation";
 import { env } from "../config/env";
 import { sendEmail } from "../services/email.service";
-import { passwordResetTemplate } from "../templates/passwordReset.template";
-import { generateAuthToken, generateResetToken, ResetTokenPayload, verifyToken } from "../utils/jwtHandler";
-import { comparePassword, hashPassword } from "../utils/password";
-import { RoleScalarFieldEnum } from "../generated/internal/prismaNamespace";
+import { passwordResetTemplate } from "../templates/auth.template";
+import { generateAuthToken, generateResetToken, verifyToken } from "../utils/jwtHandler";
+import { hashPassword, validatePassword } from "../utils/password";
+import { createUser, findUserById, updateUserPassword } from "../repositories/user.repository";
+import { getOrCreateRole } from "../repositories/role.repository";
+import { ResetTokenPayload, User } from "../comman/types";
 import { Role } from "../comman/enum";
 
-export const signup = async (data: SignupInput) => {
 
-    const hashedPassword = await hashPassword(data.password);
+export const signup = async (
+    data: SignupInput
+) => {
+    const { firstName, lastName, email, password } = data;
+    const hashedPassword = await hashPassword(password);
 
-    const userRole = await prisma.role.upsert({  // it was not recommended to make a middleware 
-        where: {
-            name: Role.USER
-        },
-        update: {},
-        create: {
-            name: Role.USER,
-        },
-    });
+    const role = await getOrCreateRole(Role.USER);
 
-
-    const user = await prisma.user.create({
-        data: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: hashedPassword,
-            roleId: userRole.id,
-        },
+    const user = await createUser({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        roleId: role.id,
     });
 
     return {
@@ -43,15 +35,16 @@ export const signup = async (data: SignupInput) => {
     };
 };
 
-export const login = async (data: LoginInput, user: User) => {
-    const { password } = data;
+export const login = async (
+    password: string,
+    user: User
+) => {
+    await validatePassword(password, user.password);
 
-    const isPasswordValid = await comparePassword(password, user.password);
-    if (!isPasswordValid) {
-        throw new UnauthorizedError("Invalid email or password");
-    }
-
-    const token = generateAuthToken({ id: user.id, email: user.email });
+    const token = generateAuthToken({
+        id: user.id,
+        email: user.email,
+    });
 
     return {
         token,
@@ -64,13 +57,8 @@ export const login = async (data: LoginInput, user: User) => {
     };
 };
 
-export const forgetPassword = async (email: string) => {
-    const user = await prisma.user.findUnique({ // move this to repository folder later 
-        where: { email },
-    });
-    if (!user) {
-        return;
-    }
+
+export const forgetPassword = async (user: User) => {
 
     const resetToken = generateResetToken({
         id: user.id,
@@ -88,14 +76,13 @@ export const forgetPassword = async (email: string) => {
         html
     );
 
-    // Logging the info sent to user
     console.log("Email send result:", emailSendingInfo);
-
-    // Nothing sensitive returned to the caller - token only goes out via email
-    return;
 };
 
-export const resetPassword = async (token: string, newPassword: string) => {
+export const resetPassword = async (
+    token: string,
+    newPassword: string
+) => {
     let payload: ResetTokenPayload;
 
     try {
@@ -108,25 +95,21 @@ export const resetPassword = async (token: string, newPassword: string) => {
         throw new BadRequestError("Invalid token");
     }
 
-    const user = await prisma.user.findUnique({ where: { id: payload.id } });
+    const user = await findUserById(payload.id);
 
     if (!user) {
         throw new BadRequestError("Invalid or expired token");
     }
 
-    // If the password already changed since this token was issued,
-    // the embedded hash won't match — token is stale/already used
-
+    // Token becomes invalid once the user's password changes.
     if (user.password !== payload.pwdHash) {
         throw new BadRequestError("Invalid or expired token");
     }
 
     const hashedPassword = await hashPassword(newPassword);
 
-    await prisma.user.update({
-        where: { id: user.id },
-        data: { password: hashedPassword },
-    });
-
-    return;
+    await updateUserPassword(
+        user.id,
+        hashedPassword
+    );
 };

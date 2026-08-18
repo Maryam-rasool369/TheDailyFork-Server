@@ -1,7 +1,7 @@
-import { prisma } from "../../config/db";
-import { CreateBlogInput, UpdateBlogInput } from "../../validations/blog.validation";
-import { NotFoundError, BadRequestError } from "../../utils/errors";
-import { BlogStatus } from "../../comman/enum";
+import { prisma } from "../config/db";
+import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
+import { NotFoundError, BadRequestError } from "../utils/errors";
+import { BlogStatus } from "../comman/enum";
 
 // Public feed — approved only
 export const getApprovedBlogs = async () => {

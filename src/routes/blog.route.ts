@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate";
 import { createBlogSchema, updateBlogSchema } from "../validations/blog.validation";
-import { requireAuth } from "../middlewares/global/authValidation.middleware";
+import { authValidation } from "../middlewares/global/authValidation.middleware";
 import { requireAdmin } from "../middlewares/auth/requireAdmin.middleware";
 import { requireBlogOwnership } from "../middlewares/blog/requireBlogOwnership.middleware";
 import { uploadImage } from "../middlewares/global/uploadImage.middleware";
@@ -16,29 +16,29 @@ router.get("/", getApprovedBlogsController);
 // Logged-in user
 router.post(
     "/",
-    requireAuth,
+    authValidation,
     uploadImage.single("image"),
     requireFile,
     validate(createBlogSchema),
     createBlogController
 );
 
-router.get("/mine", requireAuth, getMyBlogsController);
+router.get("/mine", authValidation, getMyBlogsController);
 
 router.put(
     "/:id",
-    requireAuth,
+    authValidation,
     requireBlogOwnership,
     uploadImage.single("image"),
     validate(updateBlogSchema),
     updateBlogController
 );
 
-router.delete("/:id", requireAuth, requireBlogOwnership, deleteBlogController);
+router.delete("/:id", authValidation, requireBlogOwnership, deleteBlogController);
 
 // Admin only
-router.get("/admin/all", requireAuth, requireAdmin, getAllBlogsForAdminController);
-router.patch("/admin/:id/approve", requireAuth, requireAdmin, approveBlogController);
-router.patch("/admin/:id/reject", requireAuth, requireAdmin, rejectBlogController);
+router.get("/admin/all", authValidation, requireAdmin, getAllBlogsForAdminController);
+router.patch("/admin/:id/approve", authValidation, requireAdmin, approveBlogController);
+router.patch("/admin/:id/reject", authValidation, requireAdmin, rejectBlogController);
 
 export default router;

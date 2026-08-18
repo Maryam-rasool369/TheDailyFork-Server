@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { signup, login, forgetPassword, resetPassword } from "../services/auth.service";
+import { forgetPassword, login, resetPassword, signup } from "../services/auth.service";
+import { SignupInput } from "../validations/auth.validation";
+import { User } from "../comman/types";
 
 export const signupController = async (
     req: Request,
@@ -7,16 +9,19 @@ export const signupController = async (
     next: NextFunction
 ) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const data: SignupInput = req.body;
 
-        const user = await signup({ firstName, lastName, email, password });
+        const user = await signup(
+            data
+        );
 
         return res.status(201).json({
             success: true,
             message: "User created successfully",
             data: user,
         });
-    } catch (error) {
+    }
+    catch (error) {
         next(error);
     }
 };
@@ -27,11 +32,9 @@ export const loginController = async (
     next: NextFunction
 ) => {
     try {
-        const { email, password } = req.body;
+        const { password, existingUser: user } = req.body;
 
-        // req.existingUser is attached by requireUserExistsByEmail middleware,
-        // guaranteed to exist by the time we get here
-        const result = await login({ email, password }, req.existingUser!);
+        const result = await login(password, user as User); //should we make 
 
         return res.status(200).json({
             success: true,
@@ -49,13 +52,13 @@ export const forgetPasswordController = async (
     next: NextFunction
 ) => {
     try {
-        const { email } = req.body;
+        const user = req.body.existingUser!;
 
-        await forgetPassword(email);
+        await forgetPassword(user as User);
 
         return res.status(200).json({
             success: true,
-            message: "If that email exists, a reset link has been sent",
+            message: "Password reset link has been sent",
         });
     } catch (error) {
         next(error);
