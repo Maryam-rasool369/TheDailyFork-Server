@@ -1,16 +1,25 @@
-import { prisma } from "../config/db";
-import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
-import { NotFoundError, BadRequestError } from "../utils/errors";
+import { prisma } from "../../config/db";
+import { CreateBlogInput, UpdateBlogInput } from "../../validations/blog.validation";
+import { NotFoundError, BadRequestError } from "../../utils/errors";
+import { BlogStatus } from "../../comman/enum";
+
+// Public feed — approved only
+export const getApprovedBlogs = async () => {
+    return prisma.blog.findMany({
+        where: { status: "APPROVED" },
+        include: {
+            category: true,
+            author: { select: { id: true, firstName: true, lastName: true } } //true here is not boolean but for the column that we need 
+        },
+        orderBy: { createdAt: "desc" },
+    });
+};
 
 export const createBlog = async (
     data: CreateBlogInput,
     authorId: number,
     imageUrl: string
 ) => {
-    const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
-    if (!category) {
-        throw new BadRequestError("Invalid category");
-    }
 
     const blog = await prisma.blog.create({
         data: {
@@ -20,7 +29,7 @@ export const createBlog = async (
             categoryId: data.categoryId,
             imageUrl,
             authorId,
-            status: "PENDING",
+            status: BlogStatus.PENDING,
         },
     });
 
@@ -53,14 +62,7 @@ export const getMyBlogs = async (authorId: number) => {
     });
 };
 
-// Public feed — approved only
-export const getApprovedBlogs = async () => {
-    return prisma.blog.findMany({
-        where: { status: "APPROVED" },
-        include: { category: true, author: { select: { id: true, firstName: true, lastName: true } } },
-        orderBy: { createdAt: "desc" },
-    });
-};
+
 
 // Admin — sees everything, any status
 export const getAllBlogsForAdmin = async () => {
@@ -70,20 +72,27 @@ export const getAllBlogsForAdmin = async () => {
     });
 };
 
-export const approveBlog = async (blogId: number) => {
-    const blog = await prisma.blog.findUnique({ where: { id: blogId } });
-    if (!blog) throw new NotFoundError("Blog not found");
+export const getBlogById = async (blogId: number) => {
+    const blog = await prisma.blog.findUnique({
+        where: { id: blogId },
+    });
 
+    if (!blog) {
+        throw new NotFoundError("Blog not found");
+    }
+
+    return blog;
+};
+export const approveBlog = async (blogId: number) => {
     return prisma.blog.update({
         where: { id: blogId },
-        data: { status: "APPROVED" },
+        data: {
+            status: BlogStatus.APPROVED,
+        },
     });
 };
 
 export const rejectBlog = async (blogId: number) => {
-    const blog = await prisma.blog.findUnique({ where: { id: blogId } });
-    if (!blog) throw new NotFoundError("Blog not found");
-
     return prisma.blog.update({
         where: { id: blogId },
         data: { status: "REJECTED" },
