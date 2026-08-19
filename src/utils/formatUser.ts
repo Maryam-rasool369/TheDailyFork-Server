@@ -1,6 +1,6 @@
-import { User } from "../generated/client";
+import { User } from "../generated/client"; // this was causing issue what the gender was not same so i changed it back to "../generated/client"
 
-// this builds a new smaller object 
+
 export const toPublicUser = (user: User) => {
     return {
         id: user.id,
