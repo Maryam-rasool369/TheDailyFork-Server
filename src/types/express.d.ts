@@ -1,4 +1,4 @@
-import { User, Role, Blog } from "../generated/client";
+import { User, Role, Blog } from "../comman/types";
 
 type UserWithRole = User & { role: Role };
 

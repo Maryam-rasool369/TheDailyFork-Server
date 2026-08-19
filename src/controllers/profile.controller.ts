@@ -9,7 +9,7 @@ export const getProfileController = async (
     next: NextFunction
 ) => {
     try {
-        const { id } = req.currentUser!;
+        const { id } = req.body.currentUser!;
         const user = await getProfile(id);
 
         return res.status(200).json({
@@ -28,7 +28,7 @@ export const updateProfileController = async (
 ) => {
     try {
         const data: UpdateProfileInput = req.body;
-        const { id } = req.currentUser!;
+        const { id } = req.body.currentUser!;
 
         let profileImage: string | undefined;
         if (req.file) {
@@ -54,7 +54,7 @@ export const changePasswordController = async (
 ) => {
     try {
         const data: ChangePasswordInput = req.body;
-        const { id } = req.currentUser!;
+        const { id } = req.body.currentUser!;
         await changePassword(id, data);
 
         return res.status(200).json({
