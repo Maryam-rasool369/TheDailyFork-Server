@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../config/db";
 import { NotFoundError, ForbiddenError, BadRequestError } from "../../utils/errors";
 import { BlogStatus } from "../../comman/enum";
+import { getBlogById } from "../../services/blog.service";
 
 // Use on edit/delete: blog must exist, belong to the current user,
 // and be in APPROVED status (per your requirement).
@@ -13,11 +14,7 @@ export const requireBlogOwnership = async (
     try {
         const blogId = Number(req.params.id);
 
-        if (isNaN(blogId)) {
-            throw new BadRequestError("Invalid blog id");
-        }
-
-        const blog = await prisma.blog.findUnique({ where: { id: blogId } });
+        const blog = await getBlogById(blogId);
 
         if (!blog) {
             throw new NotFoundError("Blog not found");

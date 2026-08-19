@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken, AuthTokenPayload } from "../../utils/jwtHandler";
+import { verifyToken } from "../../utils/jwtHandler";
 import { prisma } from "../../config/db";
 import { UnauthorizedError } from "../../utils/errors";
+import { AuthTokenPayload } from "../../comman/types";
 
 export const authValidation = async (
     req: Request,

@@ -7,7 +7,8 @@ import { generateAuthToken, generateResetToken, verifyToken } from "../utils/jwt
 import { hashPassword, validatePassword } from "../utils/password";
 import { createUser, findUserById, updateUserPassword } from "../repositories/user.repository";
 import { getOrCreateRole } from "../repositories/role.repository";
-import { ResetTokenPayload, User } from "../comman/types";
+import { ResetTokenPayload } from "../comman/types";
+import { User } from "../generated/client"; //changes back to the use from the generated folder
 import { Role } from "../comman/enum";
 
 
