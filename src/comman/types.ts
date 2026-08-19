@@ -19,7 +19,7 @@ export interface CreateUserInput {
     password: string;
     roleId: number;
 };
-
+//why did we separatly created the user when we already have generated/client one /
 export interface User {
     id: number;
     firstName: string;

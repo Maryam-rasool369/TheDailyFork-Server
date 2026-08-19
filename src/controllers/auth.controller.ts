@@ -32,9 +32,11 @@ export const loginController = async (
     next: NextFunction
 ) => {
     try {
-        const { password, existingUser: user } = req.body;
+        const { password } = req.body;
+        const user = req.existingUser!;
 
-        const result = await login(password, user as User); //should we make 
+
+        const result = await login(password, user); //should we make 
 
         return res.status(200).json({
             success: true,
@@ -52,9 +54,9 @@ export const forgetPasswordController = async (
     next: NextFunction
 ) => {
     try {
-        const user = req.body.existingUser!;
+        const user = req.existingUser!;
 
-        await forgetPassword(user as User);
+        await forgetPassword(user);
 
         return res.status(200).json({
             success: true,
