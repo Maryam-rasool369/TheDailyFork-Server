@@ -1,4 +1,4 @@
-import { User } from "../comman/types";
+import { User } from "../generated/client";
 
 // this builds a new smaller object 
 export const toPublicUser = (user: User) => {
