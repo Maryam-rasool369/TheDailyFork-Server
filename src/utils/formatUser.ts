@@ -1,4 +1,4 @@
-import { User } from "../generated/client"; // this was causing issue what the gender was not same so i changed it back to "../generated/client"
+import { User } from "../comman/types"; // this was causing issue what the gender was not same so i changed it back to "../generated/client"
 
 
 export const toPublicUser = (user: User) => {

@@ -9,6 +9,10 @@ export enum BlogStatus {
     REJECTED = "REJECTED",
 }
 export enum Gender {
-  MALE,
-  FEMALE
+  MALE="MALE",
+  FEMALE="FEMALE",
+}
+export enum AuthProvider {
+  LOCAL = "LOCAL",
+  GOOGLE = "GOOGLE",
 }
