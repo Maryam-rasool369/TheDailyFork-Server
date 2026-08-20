@@ -33,7 +33,7 @@ export const loginController = async (
 ) => {
     try {
         const { password } = req.body;
-        const user = req.existingUser!;
+        const user = req.body.existingUser!;
 
 
         const result = await login(password, user); //should we make 
@@ -54,7 +54,7 @@ export const forgetPasswordController = async (
     next: NextFunction
 ) => {
     try {
-        const user = req.existingUser!;
+        const user = req.body.existingUser!;
 
         await forgetPassword(user);
 

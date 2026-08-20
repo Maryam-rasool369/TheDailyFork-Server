@@ -1,57 +1,44 @@
-import { prisma } from "../config/db";
-import bycrpt from "bcrypt";
+import {findUserById, updateUserProfile}from "../repositories/user.repository";
 import { UpdateProfileInput, ChangePasswordInput } from "../validations/profile.validation";
-import { UnauthorizedError, BadRequestError } from "../utils/errors";
-import { SALT_ROUNDS } from "../comman/constants";
+import { UnauthorizedError, NotFoundError } from "../utils/errors";
 import { toPublicUser } from "../utils/formatUser";
+import { comparePassword } from "../utils/password";
+import { setNewPassword } from "./password.service";
 
 export const getProfile = async (userId: number) => {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await findUserById(userId);
 
     if (!user) {
-        throw new BadRequestError("User not found");
+        throw new NotFoundError("User not found");
     }
 
     return toPublicUser(user);
 };
 
-export const updateProfile = async (userId: number, data: UpdateProfileInput) => {
-    const user = await prisma.user.update({
-        where: { id: userId },
-        data,
-    });
-
-    return toPublicUser(user);
-};
-
-export const updateProfileImage = async (userId: number, imageUrl: string) => {
-    const user = await prisma.user.update({
-        where: { id: userId },
-        data: { profileImage: imageUrl },
-    });
-
+// Handles both text fields and an optional new picture — one page, one save action
+export const updateProfile = async (
+    userId: number,
+    data: UpdateProfileInput,
+    profileImage?: string
+) => {
+    const user = await updateUserProfile(userId, data, profileImage);
     return toPublicUser(user);
 };
 
 export const changePassword = async (userId: number, data: ChangePasswordInput) => {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await findUserById(userId);
 
     if (!user) {
-        throw new BadRequestError("User not found");
+        throw new NotFoundError("User not found");
     }
 
-    const isCurrentPasswordValid = await bycrpt.compare(data.currentPassword, user.password);
+    const isCurrentPasswordValid = await comparePassword(data.currentPassword, user.password);
     if (!isCurrentPasswordValid) {
         throw new UnauthorizedError("Current password is incorrect");
     }
 
-    const hashedPassword = await bycrpt.hash(data.newPassword, SALT_ROUNDS);
+    await setNewPassword(userId, data.newPassword);
 
-    await prisma.user.update({
-        where: { id: userId },
-        data: { password: hashedPassword },
-    });
 
     return;
 };
-

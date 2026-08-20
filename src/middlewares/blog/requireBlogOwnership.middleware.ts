@@ -20,7 +20,7 @@ export const requireBlogOwnership = async (
             throw new NotFoundError("Blog not found");
         }
 
-        if (blog.authorId !== req.currentUser!.id) {
+        if (blog.authorId !== req.body.currentUser!.id) {
             throw new ForbiddenError("You do not own this blog");
         }
 

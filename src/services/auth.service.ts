@@ -8,8 +8,9 @@ import { hashPassword, validatePassword } from "../utils/password";
 import { createUser, findUserById, updateUserPassword } from "../repositories/user.repository";
 import { getOrCreateRole } from "../repositories/role.repository";
 import { ResetTokenPayload } from "../comman/types";
-import { User } from "../generated/client"; //changes back to the use from the generated folder
+import { User } from "../comman/types"; //changes back to the use from the generated folder
 import { Role } from "../comman/enum";
+import { setNewPassword } from "./password.service";
 
 
 export const signup = async (
@@ -107,10 +108,7 @@ export const resetPassword = async (
         throw new BadRequestError("Invalid or expired token");
     }
 
-    const hashedPassword = await hashPassword(newPassword);
+    // made a common password service that will hash and update the user password
+    await setNewPassword(user.id, newPassword);
 
-    await updateUserPassword(
-        user.id,
-        hashedPassword
-    );
 };

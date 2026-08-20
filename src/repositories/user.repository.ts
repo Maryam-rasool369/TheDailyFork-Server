@@ -1,6 +1,7 @@
 import { Role } from "../comman/enum";
 import { CreateUserInput } from "../comman/types";
 import { prisma } from "../config/db";
+import { UpdateProfileInput } from "../validations/profile.validation";
 
 export const findUserById = async (id: number) => {
     return prisma.user.findUnique({
@@ -36,3 +37,18 @@ export const updateUserPassword = async (
         },
     });
 };
+
+export const updateUserProfile = async (
+    userId: number,
+    data: UpdateProfileInput,
+    profileImage?: string
+) => {
+    return prisma.user.update({
+        where: { id: userId },
+        data: {
+            ...data,
+            ...(profileImage && { profileImage }),
+        },
+    });
+};
+
