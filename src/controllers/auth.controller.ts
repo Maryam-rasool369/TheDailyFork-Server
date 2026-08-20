@@ -36,8 +36,8 @@ export const loginController = async (
     next: NextFunction
 ) => {
     try {
-        const { password } = req.body;
-        const user = req.body.existingUser!;
+        const { password,existingUser } = req.body;
+        const user = existingUser!;
 
 
         const result = await login(password, user); //should we make 
