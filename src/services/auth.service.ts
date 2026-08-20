@@ -41,6 +41,9 @@ export const login = async (
     password: string,
     user: User
 ) => {
+    if (!user.password) {
+        throw new BadRequestError("This account uses Google sign-in. Please log in with Google instead.");
+    }
     await validatePassword(password, user.password);
 
     const token = generateAuthToken({
@@ -61,7 +64,10 @@ export const login = async (
 
 
 export const forgetPassword = async (user: User) => {
-
+    
+    if (!user.password) {
+        throw new BadRequestError("This account doesn't have a password. Please log in with Google.");
+    }
     const resetToken = generateResetToken({
         id: user.id,
         purpose: "reset-password",
@@ -112,3 +118,5 @@ export const resetPassword = async (
     await setNewPassword(user.id, newPassword);
 
 };
+
+
