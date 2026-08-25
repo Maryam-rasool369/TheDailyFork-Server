@@ -28,7 +28,7 @@ export const authValidation = async (
             throw new UnauthorizedError("Not authenticated");
         }
 
-        req.currentUser = user;
+        req.body.currentUser = user;
         next();
     } catch (err) {
         next(new UnauthorizedError("Not authenticated"));

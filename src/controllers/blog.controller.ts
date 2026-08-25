@@ -27,7 +27,7 @@ export const createBlogController = async (
 ) => {
     try {
         const data: CreateBlogInput = req.body;
-        const { id: authorId } = req.currentUser!;
+        const { id: authorId } = req.body.currentUser!;
 
         const imageUrl = await uploadToCloudinary(req.file!.buffer);
         const blog = await createBlog(data, authorId, imageUrl);
@@ -48,7 +48,7 @@ export const getMyBlogsController = async (
     next: NextFunction
 ) => {
     try {
-        const { id: authorId } = req.currentUser!;
+        const { id: authorId } = req.body.currentUser!;
         const blogs = await getMyBlogs(authorId);
 
         return res.status(200).json({

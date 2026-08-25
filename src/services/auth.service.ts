@@ -8,8 +8,9 @@ import { hashPassword, validatePassword } from "../utils/password";
 import { createUser, findUserById, updateUserPassword } from "../repositories/user.repository";
 import { getOrCreateRole } from "../repositories/role.repository";
 import { ResetTokenPayload } from "../comman/types";
-import { User } from "../generated/client"; //changes back to the use from the generated folder
+import { User } from "../comman/types"; //changes back to the use from the generated folder
 import { Role } from "../comman/enum";
+import { setNewPassword } from "./password.service";
 
 
 export const signup = async (
@@ -40,6 +41,9 @@ export const login = async (
     password: string,
     user: User
 ) => {
+    if (!user.password) {
+        throw new BadRequestError("This account uses Google sign-in. Please log in with Google instead.");
+    }
     await validatePassword(password, user.password);
 
     const token = generateAuthToken({
@@ -60,7 +64,10 @@ export const login = async (
 
 
 export const forgetPassword = async (user: User) => {
-
+    
+    if (!user.password) {
+        throw new BadRequestError("This account doesn't have a password. Please log in with Google.");
+    }
     const resetToken = generateResetToken({
         id: user.id,
         purpose: "reset-password",
@@ -107,10 +114,9 @@ export const resetPassword = async (
         throw new BadRequestError("Invalid or expired token");
     }
 
-    const hashedPassword = await hashPassword(newPassword);
+    // made a common password service that will hash and update the user password
+    await setNewPassword(user.id, newPassword);
 
-    await updateUserPassword(
-        user.id,
-        hashedPassword
-    );
 };
+
+
