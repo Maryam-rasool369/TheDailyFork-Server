@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { approveBlog, createBlog, deleteBlog, getAllBlogsForAdmin, getApprovedBlogs, getMyBlogs, rejectBlog, updateBlog } from "../services/blog.service";
+import { approveBlog, createBlog, deleteBlog, getAllBlogsForAdmin, getApprovedBlogs, getBlogById, getMyBlogs, rejectBlog, updateBlog } from "../services/blog.service";
 import { uploadToCloudinary } from "../services/cloudinary.service";
 import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
+
 
 export const getApprovedBlogsController = async (
     req: Request,
@@ -19,7 +20,23 @@ export const getApprovedBlogsController = async (
         next(error);
     }
 };
+export const getBlogByIdController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const blogId = Number(req.params.id);
+        const blog = await getBlogById(blogId);
 
+        return res.status(200).json({
+            success: true,
+            data: blog,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 export const createBlogController = async (
     req: Request,
     res: Response,

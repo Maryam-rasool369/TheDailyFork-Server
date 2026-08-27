@@ -5,14 +5,14 @@ import { authValidation } from "../middlewares/global/authValidation.middleware"
 import { requireAdmin } from "../middlewares/auth/requireAdmin.middleware";
 import { requireBlogOwnership } from "../middlewares/blog/requireBlogOwnership.middleware";
 import { uploadImage } from "../middlewares/global/uploadImage.middleware";
-import { createBlogController, updateBlogController, deleteBlogController, getMyBlogsController, getApprovedBlogsController, getAllBlogsForAdminController, approveBlogController, rejectBlogController, } from "../controllers/blog.controller";
+import { createBlogController, updateBlogController, deleteBlogController, getMyBlogsController, getApprovedBlogsController, getAllBlogsForAdminController, approveBlogController, rejectBlogController, getBlogByIdController, } from "../controllers/blog.controller";
 import { requireFile } from "../middlewares/global/requireFile.middleware";
 
 const router = Router();
 
 // Public all approved blogs
 router.get("/", getApprovedBlogsController);
-
+router.get("/:id", getBlogByIdController);
 // Logged-in user
 router.post(
     "/",
