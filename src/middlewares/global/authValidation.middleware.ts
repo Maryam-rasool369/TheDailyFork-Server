@@ -4,6 +4,38 @@ import { prisma } from "../../config/db";
 import { UnauthorizedError } from "../../utils/errors";
 import { AuthTokenPayload } from "../../comman/types";
 
+// export const authValidation = async (
+
+//     req: Request,
+//     res: Response,
+//     next: NextFunction
+// ) => {
+//     try {
+//         const authHeader = req.headers.authorization;
+
+//         if (!authHeader || !authHeader.startsWith("Bearer ")) {
+//             throw new UnauthorizedError("Not authenticated");
+//         }
+
+//         const token = authHeader.split(" ")[1];
+//         const payload = verifyToken<AuthTokenPayload>(token);
+
+//         const user = await prisma.user.findUnique({
+//             where: { id: payload.id },
+//             include: { role: true },
+//         });
+
+//         if (!user) {
+//             throw new UnauthorizedError("Not authenticated");
+//         }
+
+//         req.body.currentUser = user;
+//         next();
+//     } catch (err) {
+//         next(new UnauthorizedError("Not authenticated"));
+//     }
+// };
+
 export const authValidation = async (
     req: Request,
     res: Response,
@@ -12,25 +44,36 @@ export const authValidation = async (
     try {
         const authHeader = req.headers.authorization;
 
+        // console.log("AUTH HEADER:", authHeader);
+
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new UnauthorizedError("Not authenticated");
         }
 
         const token = authHeader.split(" ")[1];
+
+        // console.log("TOKEN:", token);
+
         const payload = verifyToken<AuthTokenPayload>(token);
+
+        // console.log("JWT PAYLOAD:", payload);
 
         const user = await prisma.user.findUnique({
             where: { id: payload.id },
             include: { role: true },
         });
 
+        // console.log("USER:", user);
+
         if (!user) {
             throw new UnauthorizedError("Not authenticated");
         }
 
         req.body.currentUser = user;
+
         next();
     } catch (err) {
-        next(new UnauthorizedError("Not authenticated"));
+        console.error("AUTH VALIDATION ERROR:", err);
+        next(err);
     }
 };

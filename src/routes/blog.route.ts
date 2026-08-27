@@ -16,10 +16,10 @@ router.get("/:id", getBlogByIdController);
 // Logged-in user
 router.post(
     "/",
-    authValidation,
     uploadImage.single("image"),
     requireFile,
     validate(createBlogSchema),
+    authValidation,
     createBlogController
 );
 
@@ -27,10 +27,10 @@ router.get("/mine", authValidation, getMyBlogsController);
 
 router.put(
     "/:id",
-    authValidation,
     requireBlogOwnership,
     uploadImage.single("image"),
     validate(updateBlogSchema),
+    authValidation,
     updateBlogController
 );
 
