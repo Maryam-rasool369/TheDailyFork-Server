@@ -12,11 +12,14 @@ router.get("/me", authValidation, getProfileController);
 // Single "Edit Profile" page — image is optional, only re-uploaded if sent
 router.put(
     "/me",
-    authValidation,
     uploadImage.single("image"),
     validate(updateProfileSchema),
+    authValidation,
     updateProfileController
 );
-router.put("/me/password", authValidation, validate(changePasswordSchema), changePasswordController);
+router.put("/me/password",
+    validate(changePasswordSchema),
+    authValidation,
+    changePasswordController);
 
 export default router;

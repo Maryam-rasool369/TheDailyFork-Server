@@ -76,7 +76,24 @@ export const getMyBlogsController = async (
         next(error);
     }
 };
+export const getBlogForEditController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const blogId = Number(req.params.id);
 
+        const blog = await getBlogById(blogId);
+
+        return res.status(200).json({
+            success: true,
+            data: blog,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 export const updateBlogController = async (
     req: Request,
     res: Response,
@@ -90,6 +107,10 @@ export const updateBlogController = async (
         if (req.file) {
             imageUrl = await uploadToCloudinary(req.file.buffer);
         }
+
+        // Just for development purposes
+        // console.log("UPDATE BLOG BODY:", req.body);
+        // console.log("UPDATE BLOG FILE:", req.file);
 
         const blog = await updateBlog(blogId, data, imageUrl);
 

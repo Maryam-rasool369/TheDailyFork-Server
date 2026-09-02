@@ -30,17 +30,17 @@ router.get("/", getCategoriesController);
  */
 router.post(
     "/",
+    validate(createCategorySchema),
     authValidation,
     requireAdmin,
-    validate(createCategorySchema),
     createCategoryController
 );
 
 router.put(
     "/:id",
+    validate(updateCategorySchema),
     authValidation,
     requireAdmin,
-    validate(updateCategorySchema),
     updateCategoryController
 );
 

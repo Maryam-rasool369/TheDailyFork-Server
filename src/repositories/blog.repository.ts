@@ -6,8 +6,8 @@ export const findApprovedBlogs = async () => {
     return prisma.blog.findMany({
         where: { status: BlogStatus.APPROVED },
         include: {
-            category: true,
-            author: { select: { id: true, firstName: true, lastName: true } },
+            category: { select: { id: true, name: true } },
+            author: { select: { id: true, firstName: true, lastName: true, profileImage: true } },
         },
         orderBy: { createdAt: "desc" },
     });
@@ -16,7 +16,10 @@ export const findApprovedBlogs = async () => {
 export const findBlogsByAuthor = async (authorId: number) => {
     return prisma.blog.findMany({
         where: { authorId },
-        include: { category: true },
+        include: {
+            category: { select: { id: true, name: true } },
+            author: { select: { id: true, firstName: true, lastName: true, profileImage: true } },
+        },
         orderBy: { createdAt: "desc" },
     });
 };
@@ -25,14 +28,20 @@ export const findAllBlogsForAdmin = async () => {
     return prisma.blog.findMany({
         include: {
             category: true,
-            author: { select: { id: true, firstName: true, lastName: true, email: true } },
+            author: { select: { id: true, firstName: true, lastName: true, email: true, phoneNumber: true, profileImage: true } },
         },
         orderBy: { createdAt: "desc" },
     });
 };
 
 export const findBlogById = async (blogId: number) => {
-    return prisma.blog.findUnique({ where: { id: blogId } });
+    return prisma.blog.findUnique({
+        where: { id: blogId },
+        include: {
+            category: { select: { id: true, name: true } },
+            author: { select: { id: true, firstName: true, lastName: true, profileImage: true } },
+        },
+    });
 };
 
 export const insertBlog = async (
@@ -61,8 +70,29 @@ export const updateBlogById = async (
     return prisma.blog.update({
         where: { id: blogId },
         data: {
-            ...data,
-            ...(imageUrl && { imageUrl }),
+            ...(data.title !== undefined && {
+                title: data.title,
+            }),
+
+            ...(data.shortDescription !== undefined && {
+                shortDescription: data.shortDescription,
+            }),
+
+            ...(data.content !== undefined && {
+                content: data.content,
+            }),
+
+            ...(data.categoryId !== undefined && {
+                category: {
+                    connect: {
+                        id: data.categoryId,
+                    },
+                },
+            }),
+
+            ...(imageUrl !== undefined && {
+                imageUrl,
+            }),
         },
     });
 };
