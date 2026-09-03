@@ -18,4 +18,7 @@ export const env = {
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
+    // Google GIS
+    GOOGLE_CLIENT_ID:process.env.GOOGLE_CLIENT_ID,
+
 };

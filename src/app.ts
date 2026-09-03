@@ -5,6 +5,8 @@ import authRouter from './routes/auth.route';
 import { errorHandler } from './middlewares/errorHandler';
 import { authLimiter } from './middlewares/rateLimiter';
 import blogRouter from "./routes/blog.route";
+import categoryRouter from "./routes/category.route";
+
 
 const app: Application = express();
 
@@ -17,6 +19,8 @@ app.use(express.json());
 
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/blogs", blogRouter);
+app.use("/api/category", categoryRouter);
+
 
 app.use(errorHandler);
 
