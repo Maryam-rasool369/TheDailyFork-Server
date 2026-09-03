@@ -5,31 +5,41 @@ import { authValidation } from "../middlewares/global/authValidation.middleware"
 import { requireAdmin } from "../middlewares/auth/requireAdmin.middleware";
 import { requireBlogOwnership } from "../middlewares/blog/requireBlogOwnership.middleware";
 import { uploadImage } from "../middlewares/global/uploadImage.middleware";
-import { createBlogController, updateBlogController, deleteBlogController, getMyBlogsController, getApprovedBlogsController, getAllBlogsForAdminController, approveBlogController, rejectBlogController, } from "../controllers/blog.controller";
+import { createBlogController, updateBlogController, deleteBlogController, getMyBlogsController, getApprovedBlogsController, getAllBlogsForAdminController, approveBlogController, rejectBlogController, getBlogByIdController, getBlogForEditController, } from "../controllers/blog.controller";
 import { requireFile } from "../middlewares/global/requireFile.middleware";
 
 const router = Router();
 
 // Public all approved blogs
 router.get("/", getApprovedBlogsController);
+//All user blogs approved or pending
+router.get("/mine", authValidation, getMyBlogsController);
 
-// Logged-in user
+router.get(
+    "/:id/edit",
+    authValidation,
+    requireBlogOwnership,
+    getBlogForEditController
+);
+
+router.get("/:id", getBlogByIdController);
+
+// Create only by Logged-in user
 router.post(
     "/",
-    authValidation,
     uploadImage.single("image"),
+    authValidation,
     requireFile,
     validate(createBlogSchema),
     createBlogController
 );
 
-router.get("/mine", authValidation, getMyBlogsController);
 
 router.put(
     "/:id",
+    uploadImage.single("image"),
     authValidation,
     requireBlogOwnership,
-    uploadImage.single("image"),
     validate(updateBlogSchema),
     updateBlogController
 );

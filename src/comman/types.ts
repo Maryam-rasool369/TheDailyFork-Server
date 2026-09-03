@@ -1,4 +1,4 @@
-import { Gender } from "./enum";
+import { AuthProvider, Gender } from "./enum";
 
 // For login
 export interface AuthTokenPayload {
@@ -22,10 +22,12 @@ export interface CreateUserInput {
 //why did we separatly created the user when we already have generated/client one /
 export interface User {
     id: number;
+    googleId: string | null;
+    authProvider: AuthProvider;
     firstName: string;
     lastName: string | null;
     email: string;
-    password: string;
+    password: string | null;
     profileImage: string | null;
     bio: string | null;
     gender: Gender | null;
@@ -36,3 +38,12 @@ export interface User {
     createdAt: Date;
     updatedAt: Date;
 };
+
+
+export interface GoogleUserPayload {
+    googleId: string;
+    email: string;
+    firstName: string;
+    lastName?: string;
+    profileImage?: string;
+}

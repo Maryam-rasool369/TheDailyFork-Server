@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { approveBlog, createBlog, deleteBlog, getAllBlogsForAdmin, getApprovedBlogs, getMyBlogs, rejectBlog, updateBlog } from "../services/blog.service";
+import { approveBlog, createBlog, deleteBlog, getAllBlogsForAdmin, getApprovedBlogs, getBlogById, getMyBlogs, rejectBlog, updateBlog } from "../services/blog.service";
 import { uploadToCloudinary } from "../services/cloudinary.service";
 import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
+
 
 export const getApprovedBlogsController = async (
     req: Request,
@@ -19,7 +20,23 @@ export const getApprovedBlogsController = async (
         next(error);
     }
 };
+export const getBlogByIdController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const blogId = Number(req.params.id);
+        const blog = await getBlogById(blogId);
 
+        return res.status(200).json({
+            success: true,
+            data: blog,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 export const createBlogController = async (
     req: Request,
     res: Response,
@@ -59,7 +76,24 @@ export const getMyBlogsController = async (
         next(error);
     }
 };
+export const getBlogForEditController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const blogId = Number(req.params.id);
 
+        const blog = await getBlogById(blogId);
+
+        return res.status(200).json({
+            success: true,
+            data: blog,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 export const updateBlogController = async (
     req: Request,
     res: Response,
@@ -73,6 +107,10 @@ export const updateBlogController = async (
         if (req.file) {
             imageUrl = await uploadToCloudinary(req.file.buffer);
         }
+
+        // Just for development purposes
+        // console.log("UPDATE BLOG BODY:", req.body);
+        // console.log("UPDATE BLOG FILE:", req.file);
 
         const blog = await updateBlog(blogId, data, imageUrl);
 
