@@ -14,6 +14,10 @@ export const updateProfileSchema = z.object({
     bio: z.string().trim().max(300, "Bio must be under 300 characters").optional(),
 });
 
+export const verifyPasswordSchema = z.object({
+    currentPassword: z.string().min(1, "Current password is required"),
+});
+
 export const changePasswordSchema = z
     .object({
         currentPassword: z.string().min(1, "Current password is required"),
@@ -25,4 +29,5 @@ export const changePasswordSchema = z
     });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type VerifyPasswordInput = z.infer<typeof verifyPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

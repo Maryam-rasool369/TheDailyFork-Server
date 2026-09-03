@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/errorHandler';
 import { authLimiter } from './middlewares/rateLimiter';
 import blogRouter from "./routes/blog.route";
 import categoryRouter from "./routes/category.route";
+import profileRouter from "./routes/profile.route";
 
 
 const app: Application = express();
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/profile", profileRouter)
 
 
 app.use(errorHandler);

@@ -16,7 +16,6 @@ export const getProfile = async (userId: number) => {
     return toPublicUser(user as User);
 };
 
-// Handles both text fields and an optional new picture — one page, one save action
 export const updateProfile = async (
     userId: number,
     data: UpdateProfileInput,
@@ -24,6 +23,26 @@ export const updateProfile = async (
 ) => {
     const user = await updateUserProfile(userId, data, profileImage);
     return toPublicUser(user as User);
+};
+
+// Checks the current password only — does not change anything.
+// Used by the "Verify Password" step before showing the new-password fields.
+export const verifyCurrentPassword = async (userId: number, currentPassword: string) => {
+    const user = await findUserById(userId);
+
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+    if (!user.password) {
+        throw new BadRequestError("This account doesn't have a password set yet.");
+    }
+
+    const isValid = await comparePassword(currentPassword, user.password);
+    if (!isValid) {
+        throw new UnauthorizedError("Current password is incorrect");
+    }
+
+    return;
 };
 
 export const changePassword = async (userId: number, data: ChangePasswordInput) => {
@@ -43,7 +62,5 @@ export const changePassword = async (userId: number, data: ChangePasswordInput) 
 
     await setNewPassword(userId, data.newPassword);
 
-
     return;
 };
-
