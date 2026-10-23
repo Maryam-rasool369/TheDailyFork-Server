@@ -38,6 +38,13 @@ export const updateUserPassword = async (
     });
 };
 
+export const markUserVerified = async (userId: number) => { // when user will click the link in the email
+    return prisma.user.update({
+        where: { id: userId },
+        data: { isVerified: true },
+    });
+};
+
 export const updateUserProfile = async (
     userId: number,
     data: UpdateProfileInput,
@@ -64,7 +71,7 @@ export const createGoogleUser = async (data: {
     googleId: string;
     profileImage?: string;
     roleId: number;
-    authProvider: AuthProvider; 
+    authProvider: AuthProvider;
 }) => {
     return prisma.user.create({
         data: {
@@ -83,6 +90,22 @@ export const createGoogleUser = async (data: {
 export const linkGoogleAccount = async (userId: number, googleId: string) => {
     return prisma.user.update({
         where: { id: userId },
-        data: { googleId },
+        data: {
+            googleId: googleId,
+            authProvider: AuthProvider.GOOGLE
+        },
     });
 };
+
+// For digest service
+export const findVerifiedUsersForDigest = async () => {
+    return prisma.user.findMany({
+        where: { isVerified: true },
+        select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+        }
+    })
+}

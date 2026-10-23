@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { changePassword, getProfile, updateProfile, verifyCurrentPassword } from "../services/profile.service";
+import { changePassword, getProfile, updateProfile, verifyCurrentPassword, setPassword } from "../services/profile.service";
 import { uploadToCloudinary } from "../services/cloudinary.service";
-import { UpdateProfileInput, ChangePasswordInput, VerifyPasswordInput } from "../validations/profile.validation";
+import { UpdateProfileInput, ChangePasswordInput, VerifyPasswordInput, SetPasswordInput } from "../validations/profile.validation";
 
 export const getProfileController = async (
     req: Request,
@@ -80,6 +80,25 @@ export const changePasswordController = async (
         return res.status(200).json({
             success: true,
             message: "Password changed successfully",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const setPasswordController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const data: SetPasswordInput = req.body;
+        const { id } = req.body.currentUser!;
+        await setPassword(id, data);
+
+        return res.status(200).json({
+            success: true,
+            message: "Password set successfully",
         });
     } catch (error) {
         next(error);

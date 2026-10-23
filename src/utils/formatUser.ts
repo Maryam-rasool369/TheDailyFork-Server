@@ -13,5 +13,6 @@ export const toPublicUser = (user: User) => {
         birthday: user.birthday,
         phoneNumber: user.phoneNumber,
         isVerified: user.isVerified,
+        hasPassword: !!user.password, // double negation !! this will make this a boolean 
     };
 };

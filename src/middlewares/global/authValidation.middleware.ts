@@ -3,6 +3,7 @@ import { verifyToken } from "../../utils/jwtHandler";
 import { prisma } from "../../config/db";
 import { UnauthorizedError } from "../../utils/errors";
 import { AuthTokenPayload } from "../../comman/types";
+import { isTokenRevoked } from "../../repositories/revokedToken.repository";
 
 export const authValidation = async (
     req: Request,
@@ -25,6 +26,11 @@ export const authValidation = async (
         const payload = verifyToken<AuthTokenPayload>(token);
 
         // console.log("JWT PAYLOAD:", payload);
+
+        // Token is still valid, but the user logged out before it expired
+        if (await isTokenRevoked(token)) {
+            throw new UnauthorizedError("Not authenticated");
+        }
 
         const user = await prisma.user.findUnique({
             where: { id: payload.id },

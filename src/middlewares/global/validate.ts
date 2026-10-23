@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodSchema } from "zod";
-import { BadRequestError } from "../utils/errors";
+import { BadRequestError } from "../../utils/errors";
 
 export const validate = (schema: ZodSchema<object>) => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +20,22 @@ export const validate = (schema: ZodSchema<object>) => {
         // ...(req.body || {}),
         // ...result.data,
         // };
+
+        next();
+    };
+};
+export const validateQuery = (schema: ZodSchema<object>) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const result = schema.safeParse(req.query);
+
+        if (!result.success) {
+            const message = result.error.issues
+                .map((issue) => issue.message)
+                .join(", ");
+            return next(new BadRequestError(message));
+        }
+
+        res.locals.query = result.data; //so it can be used in the latter middleware and controllers.
 
         next();
     };

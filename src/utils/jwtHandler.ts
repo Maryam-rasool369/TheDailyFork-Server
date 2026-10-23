@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { AUTH_TOKEN_EXPIRY, RESET_TOKEN_EXPIRY } from "../comman/constants";
-import { AuthTokenPayload, ResetTokenPayload } from "../comman/types";
+import { AUTH_TOKEN_EXPIRY, RESET_TOKEN_EXPIRY, VERIFY_EMAIL_TOKEN_EXPIRY } from "../comman/constants";
+import { AuthTokenPayload, ResetTokenPayload, VerifyEmailTokenPayload } from "../comman/types";
 
 export const generateAuthToken = (
     payload: AuthTokenPayload,
@@ -20,6 +20,16 @@ export const generateResetToken = (
         payload,
         env.JWT_SECRET,
         { expiresIn: RESET_TOKEN_EXPIRY, }
+    );
+};
+
+export const generateVerifyEmailToken = (
+    payload: VerifyEmailTokenPayload,
+) => {
+    return jwt.sign(
+        payload,
+        env.JWT_SECRET,
+        { expiresIn: VERIFY_EMAIL_TOKEN_EXPIRY }
     );
 };
 

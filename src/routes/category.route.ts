@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { validate } from "../middlewares/validate";
+import { validate } from "../middlewares/global/validate";
 import { authValidation } from "../middlewares/global/authValidation.middleware";
 import { requireAdmin } from "../middlewares/auth/requireAdmin.middleware";
 

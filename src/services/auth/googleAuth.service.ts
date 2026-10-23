@@ -1,9 +1,9 @@
-import * as userRepository from "../repositories/user.repository";
-import { getOrCreateRole } from "../repositories/role.repository";
-import { toPublicUser } from "../utils/formatUser";
-import { AuthProvider, Role } from "../comman/enum";
-import { User } from "../comman/types";
-import { verifyGoogleToken } from "../utils/googleAuth";
+import * as userRepository from "../../repositories/user.repository";
+import { getOrCreateRole } from "../../repositories/role.repository";
+import { toPublicUser } from "../../utils/formatUser";
+import { AuthProvider, Role } from "../../comman/enum";
+import { User } from "../../comman/types";
+import { verifyGoogleToken } from "../../utils/googleAuth";
 
 
 
