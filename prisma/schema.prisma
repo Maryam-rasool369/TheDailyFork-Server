@@ -15,6 +15,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -37,26 +42,29 @@ model Role {
 }
 
 
+
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   firstName    String
   lastName     String?
-  email        String   @unique
-  password     String
+  email        String       @unique
+  password     String?      // optional now  Google users won't have one
+  googleId     String?      @unique
+  authProvider AuthProvider @default(LOCAL)
   profileImage String?
   bio          String?
   gender       Gender?
   birthday     DateTime?
   phoneNumber  String?
-  isVerified   Boolean  @default(false)
+  isVerified   Boolean      @default(false)
 
   roleId       Int
-  role         Role     @relation(fields: [roleId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
 
   blogs        Blog[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Category {

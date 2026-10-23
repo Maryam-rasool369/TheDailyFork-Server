@@ -13,7 +13,7 @@ export const comparePassword = (
     return bcrypt.compare(password, hashedPassword);
 };
 
-export const validatePassword = async (password: string, hashedPassword: string) => {
+export const validatePassword = async (password: string , hashedPassword: string) => {
     const isValid = await comparePassword(password, hashedPassword);
 
     if (!isValid) {

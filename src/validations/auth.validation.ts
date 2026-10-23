@@ -31,6 +31,10 @@ export const resetPasswordSchema = z.object({
         .regex(/[0-9]/, "Password must contain at least one number"),
 });
 
+export const googleLoginSchema = z.object({
+    idToken: z.string().min(1, "Google ID token is required"),
+});
+
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgetPasswordInput = z.infer<typeof forgetPasswordSchema>;

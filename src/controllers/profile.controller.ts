@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { changePassword, getProfile, updateProfile } from "../services/profile.service";
+import { changePassword, getProfile, updateProfile, verifyCurrentPassword } from "../services/profile.service";
 import { uploadToCloudinary } from "../services/cloudinary.service";
-import { UpdateProfileInput, ChangePasswordInput } from "../validations/profile.validation";
+import { UpdateProfileInput, ChangePasswordInput, VerifyPasswordInput } from "../validations/profile.validation";
 
 export const getProfileController = async (
     req: Request,
@@ -27,8 +27,8 @@ export const updateProfileController = async (
     next: NextFunction
 ) => {
     try {
-        const data: UpdateProfileInput = req.body;
-        const { id } = req.body.currentUser!;
+        const { currentUser, ...data } = req.body;
+        const { id } = currentUser;
 
         let profileImage: string | undefined;
         if (req.file) {
@@ -41,6 +41,26 @@ export const updateProfileController = async (
             success: true,
             message: "Profile updated successfully",
             data: user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyPasswordController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { currentPassword }: VerifyPasswordInput = req.body;
+        const { id } = req.body.currentUser!;
+
+        await verifyCurrentPassword(id, currentPassword);
+
+        return res.status(200).json({
+            success: true,
+            message: "Password verified",
         });
     } catch (error) {
         next(error);

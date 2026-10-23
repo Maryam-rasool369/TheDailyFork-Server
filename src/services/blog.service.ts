@@ -1,4 +1,4 @@
-import {deleteBlogById, findAllBlogsForAdmin, findApprovedBlogs, findBlogById, findBlogsByAuthor, insertBlog, updateBlogById, updateBlogStatus} from "../repositories/blog.repository";
+import { deleteBlogById, findAllBlogsForAdmin, findApprovedBlogs, findBlogById, findBlogsByAuthor, insertBlog, updateBlogById, updateBlogStatus } from "../repositories/blog.repository";
 import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
 import { NotFoundError } from "../utils/errors";
 import { BlogStatus } from "../comman/enum";
@@ -45,7 +45,7 @@ export const updateBlog = async (
     // Ensure the blog actually exists before attempting an update
     await getBlogById(blogId);
 
-    if (data.categoryId) {
+    if (data.categoryId !== undefined) {
         await getCategoryById(data.categoryId);
     }
 
