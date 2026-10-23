@@ -7,7 +7,7 @@ export const uploadImage = multer({
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
     fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith("image/")) {
-            return cb(new Error("Only image files are allowed"));
+            return cb(new Error("Only image files are allowed"));//cd is callback function which is used to pass the error message to the next middleware
         }
         cb(null, true);
     },

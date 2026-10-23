@@ -28,6 +28,12 @@ export const changePasswordSchema = z
         path: ["newPassword"],
     });
 
+// For Google-only accounts that don't have a password yet.
+export const setPasswordSchema = z.object({
+    newPassword: passwordSchema,
+});
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type VerifyPasswordInput = z.infer<typeof verifyPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type SetPasswordInput = z.infer<typeof setPasswordSchema>;

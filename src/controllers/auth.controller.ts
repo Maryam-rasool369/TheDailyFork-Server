@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { forgetPassword, login, resetPassword, signup } from "../services/auth.service";
+import { forgetPassword, login, logout, resetPassword, signup, verifyEmail } from "../services/auth/auth.service";
 import { SignupInput } from "../validations/auth.validation";
-import { googleLogin } from "../services/googleAuth.service";
+import { googleLogin } from "../services/auth/googleAuth.service";
 import { generateAuthToken } from "../utils/jwtHandler";
 import { BadRequestError } from "../utils/errors";
-
-
 
 export const signupController = async (
     req: Request,
@@ -90,6 +88,29 @@ export const resetPasswordController = async (
     }
 };
 
+export const verifyEmailController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { token } = req.query as { token: string }; // query is after ? in the url, and params are part of the url
+        
+        if (!token) {
+            throw new BadRequestError("Token is required");
+        }
+
+        await verifyEmail(token);
+
+        return res.status(200).json({
+            success: true,
+            message: "Email verified successfully",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Login with google
 
 export const googleLoginController = async (
@@ -111,6 +132,25 @@ export const googleLoginController = async (
             success: true,
             message: "Google login successful",
             data: { token, user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+export const logoutController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        // authValidation has already confirmed the Bearer header is present and valid
+        const token = req.headers.authorization!.split(" ")[1];
+
+        await logout(token);
+
+        return res.status(200).json({
+            success: true,
+            message: "Logged out successfully",
         });
     } catch (error) {
         next(error);

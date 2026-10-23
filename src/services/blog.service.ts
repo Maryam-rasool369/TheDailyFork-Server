@@ -1,19 +1,46 @@
-import { deleteBlogById, findAllBlogsForAdmin, findApprovedBlogs, findBlogById, findBlogsByAuthor, insertBlog, updateBlogById, updateBlogStatus } from "../repositories/blog.repository";
-import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
-import { NotFoundError } from "../utils/errors";
-import { BlogStatus } from "../comman/enum";
+import {
+    deleteBlogById, findApprovedBlogs, findBlogById, findBlogsByAuthor, findPopularBlogs, insertBlog, updateBlogById, updateBlogStatus, createBlogLike,
+    deleteBlogLike,
+    findBlogLike,
+} from "../repositories/blog.repository";
+import { CreateBlogInput, UpdateBlogInput, GetBlogsQuery, GetMyBlogsQuery } from "../validations/blog.validation";
 import { getCategoryById } from "./category.service";
+import {
+    BadRequestError,
+    NotFoundError,
+} from "../utils/errors";
 
-export const getApprovedBlogs = async () => {
-    return findApprovedBlogs();
+import { BlogStatus } from "../comman/enum";
+
+
+const buildPagination = (page: number, limit: number, total: number) => ({
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+});
+
+export const getApprovedBlogs = async (query: GetBlogsQuery) => {
+    const { blogs, total } = await findApprovedBlogs(query);
+
+    return {
+        blogs,
+        pagination: {
+            page: query.page,
+            limit: query.limit,
+            total,
+            totalPages: Math.ceil(total / query.limit),
+        },
+    };
 };
 
-export const getMyBlogs = async (authorId: number) => {
-    return findBlogsByAuthor(authorId);
-};
+export const getMyBlogs = async (authorId: number, query: GetMyBlogsQuery) => {
+    const { blogs, total } = await findBlogsByAuthor(authorId, query);
 
-export const getAllBlogsForAdmin = async () => {
-    return findAllBlogsForAdmin();
+    return {
+        blogs,
+        pagination: buildPagination(query.page, query.limit, total),
+    };
 };
 
 export const getBlogById = async (blogId: number) => {
@@ -57,12 +84,65 @@ export const deleteBlog = async (blogId: number) => {
     return deleteBlogById(blogId);
 };
 
-export const approveBlog = async (blogId: number) => {
-    await getBlogById(blogId);
-    return updateBlogStatus(blogId, BlogStatus.APPROVED);
+
+export const getPopularBlogs = async () => {
+    return findPopularBlogs();
 };
 
-export const rejectBlog = async (blogId: number) => {
-    await getBlogById(blogId);
-    return updateBlogStatus(blogId, BlogStatus.REJECTED);
+
+export const likeBlog = async (
+    userId: number,
+    blogId: number
+) => {
+    const blog = await findBlogById(blogId);
+
+    if (!blog) {
+        throw new NotFoundError("Blog not found");
+    }
+
+    if (blog.status !== BlogStatus.APPROVED) {
+        throw new BadRequestError(
+            "Only approved blogs can be liked"
+        );
+    }
+
+    const existingLike = await findBlogLike(userId, blogId);
+
+    if (existingLike) {
+        throw new BadRequestError(
+            "You have already liked this blog"
+        );
+    }
+
+    try {
+        return await createBlogLike(userId, blogId);
+    } catch (error: any) {
+        // Two simultaneous requests both passed the check above;
+        // the unique (userId, blogId) constraint rejected the second one.
+        if (error?.code === "P2002") {
+            throw new BadRequestError("You have already liked this blog");
+        }
+        throw error;
+    }
+};
+export const unlikeBlog = async (
+    userId: number,
+    blogId: number
+) => {
+    const existingLike = await findBlogLike(userId, blogId);
+
+    if (!existingLike) {
+        throw new NotFoundError(
+            "You have not liked this blog"
+        );
+    }
+
+    try {
+        return await deleteBlogLike(userId, blogId);
+    } catch (error: any) {
+        if (error?.code === "P2025") {
+            throw new NotFoundError("You have not liked this blog");
+        }
+        throw error;
+    }
 };

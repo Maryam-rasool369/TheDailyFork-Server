@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { validate } from "../middlewares/validate";
-import { updateProfileSchema, changePasswordSchema, verifyPasswordSchema } from "../validations/profile.validation";
+import { validate } from "../middlewares/global/validate";
+import { updateProfileSchema, changePasswordSchema, verifyPasswordSchema, setPasswordSchema } from "../validations/profile.validation";
 import { authValidation } from "../middlewares/global/authValidation.middleware";
 import { uploadImage } from "../middlewares/global/uploadImage.middleware";
 import {
@@ -8,6 +8,7 @@ import {
     updateProfileController,
     verifyPasswordController,
     changePasswordController,
+    setPasswordController,
 } from "../controllers/profile.controller";
 
 const router = Router();
@@ -34,6 +35,13 @@ router.put(
     authValidation,
     validate(changePasswordSchema),
     changePasswordController
+);
+
+router.post(
+    "/me/set-password",
+    authValidation,
+    validate(setPasswordSchema),
+    setPasswordController
 );
 
 export default router;

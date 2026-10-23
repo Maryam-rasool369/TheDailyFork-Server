@@ -38,3 +38,8 @@ export class ForbiddenError extends AppError {
         super(message, 403);
     }
 }
+export class PaymentRequiredError extends AppError {
+    constructor(message = "Payment required") {
+        super(message, 402);
+    }
+}

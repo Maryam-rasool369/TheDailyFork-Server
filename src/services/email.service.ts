@@ -1,15 +1,7 @@
-import sgMail from "@sendgrid/mail";
+import { EmailAttachment } from "../comman/types";
 import { env } from "../config/env";
 import { transporter } from "../lib/mailer";
 
-// sgMail.setApiKey(env.SENDGRID_API_KEY);
-
-export interface EmailAttachment {
-    content: string;
-    filename: string;
-    type: string;
-    disposition?: string;
-}
 
 export const sendEmail = async (
     to: string,

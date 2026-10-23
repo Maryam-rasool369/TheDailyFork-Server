@@ -16,3 +16,9 @@ export enum AuthProvider {
   LOCAL = "LOCAL",
   GOOGLE = "GOOGLE",
 }
+
+// This enum is used to represent the subscription plans.
+export enum SubscriptionPlan {
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEARLY"
+}

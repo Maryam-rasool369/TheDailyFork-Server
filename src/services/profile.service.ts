@@ -1,5 +1,5 @@
 import { findUserById, updateUserProfile } from "../repositories/user.repository";
-import { UpdateProfileInput, ChangePasswordInput } from "../validations/profile.validation";
+import { UpdateProfileInput, ChangePasswordInput, SetPasswordInput } from "../validations/profile.validation";
 import { UnauthorizedError, NotFoundError, BadRequestError } from "../utils/errors";
 import { toPublicUser } from "../utils/formatUser";
 import { comparePassword } from "../utils/password";
@@ -58,6 +58,22 @@ export const changePassword = async (userId: number, data: ChangePasswordInput) 
     const isCurrentPasswordValid = await comparePassword(data.currentPassword, user.password);
     if (!isCurrentPasswordValid) {
         throw new UnauthorizedError("Current password is incorrect");
+    }
+
+    await setNewPassword(userId, data.newPassword);
+
+    return;
+};
+
+// For accounts created via Google that don't have a password yet.
+export const setPassword = async (userId: number, data: SetPasswordInput) => {
+    const user = await findUserById(userId);
+
+    if (!user) {
+        throw new NotFoundError("User not found");
+    }
+    if (user.password) {
+        throw new BadRequestError("This account already has a password. Use change password instead.");
     }
 
     await setNewPassword(userId, data.newPassword);

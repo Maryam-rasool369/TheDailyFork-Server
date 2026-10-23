@@ -1,25 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { approveBlog, createBlog, deleteBlog, getAllBlogsForAdmin, getApprovedBlogs, getBlogById, getMyBlogs, rejectBlog, updateBlog } from "../services/blog.service";
+import {
+    createBlog, deleteBlog, getApprovedBlogs, getBlogById, getMyBlogs, getPopularBlogs, updateBlog, likeBlog,
+    unlikeBlog,
+} from "../services/blog.service";
 import { uploadToCloudinary } from "../services/cloudinary.service";
-import { CreateBlogInput, UpdateBlogInput } from "../validations/blog.validation";
+import { CreateBlogInput, GetBlogsQuery, GetMyBlogsQuery, UpdateBlogInput } from "../validations/blog.validation";
+import { getBlogForViewer } from "../services/subscription/blogAccess.service";
+import { findLikedBlogIds } from "../repositories/blog.repository";
 
-
-export const getApprovedBlogsController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const blogs = await getApprovedBlogs();
-
-        return res.status(200).json({
-            success: true,
-            data: blogs,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
 export const getBlogByIdController = async (
     req: Request,
     res: Response,
@@ -27,16 +15,53 @@ export const getBlogByIdController = async (
 ) => {
     try {
         const blogId = Number(req.params.id);
-        const blog = await getBlogById(blogId);
+
+        // Set by the authValidation middleware if a valid token was present;
+        // undefined for anonymous visitors.
+        const currentUser = req.body.currentUser;
+
+        const blog = await getBlogForViewer(blogId, currentUser);
+
+        const isLiked = currentUser
+            ? (await findLikedBlogIds(currentUser.id, [blogId])).has(blogId)
+            : false;
 
         return res.status(200).json({
             success: true,
-            data: blog,
+            data: { ...blog, isLiked },
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getApprovedBlogsController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const query = res.locals.query as GetBlogsQuery;
+        const { blogs, pagination } = await getApprovedBlogs(query);
+        const currentUser = req.body?.currentUser;
+
+        const likedIds = currentUser
+            ? await findLikedBlogIds(currentUser.id, blogs.map((b) => b.id))
+            : new Set<number>();
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                blogs: blogs.map((b) => ({ ...b, isLiked: likedIds.has(b.id) })),
+                pagination,
+            },
         });
     } catch (error) {
         next(error);
     }
 };
+
 export const createBlogController = async (
     req: Request,
     res: Response,
@@ -65,17 +90,20 @@ export const getMyBlogsController = async (
     next: NextFunction
 ) => {
     try {
-        const { id: authorId } = req.body.currentUser!;
-        const blogs = await getMyBlogs(authorId);
+        const { id } = req.body.currentUser!;
+        const query = res.locals.query as GetMyBlogsQuery;
+
+        const result = await getMyBlogs(id, query);
 
         return res.status(200).json({
             success: true,
-            data: blogs,
+            data: result,
         });
     } catch (error) {
         next(error);
     }
 };
+
 export const getBlogForEditController = async (
     req: Request,
     res: Response,
@@ -143,13 +171,13 @@ export const deleteBlogController = async (
 };
 
 
-export const getAllBlogsForAdminController = async (
+export const getPopularBlogsController = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const blogs = await getAllBlogsForAdmin();
+        const blogs = await getPopularBlogs();
 
         return res.status(200).json({
             success: true,
@@ -160,38 +188,39 @@ export const getAllBlogsForAdminController = async (
     }
 };
 
-export const approveBlogController = async (
+export const likeBlogController = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const blogId = Number(req.params.id);
-        const blog = await approveBlog(blogId);
+        const { id: userId } = req.body.currentUser!;
 
-        return res.status(200).json({
+        await likeBlog(userId, blogId);
+
+        return res.status(201).json({
             success: true,
-            message: "Blog approved",
-            data: blog,
+            message: "Blog liked successfully",
         });
     } catch (error) {
         next(error);
     }
 };
-
-export const rejectBlogController = async (
+export const unlikeBlogController = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const blogId = Number(req.params.id);
-        const blog = await rejectBlog(blogId);
+        const { id: userId } = req.body.currentUser!;
+
+        await unlikeBlog(userId, blogId);
 
         return res.status(200).json({
             success: true,
-            message: "Blog rejected",
-            data: blog,
+            message: "Blog unliked successfully",
         });
     } catch (error) {
         next(error);
